@@ -1,0 +1,28 @@
+import "dotenv/config";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaClient } from "./generated/prisma/client.ts";
+
+console.log(process.env.DATABASE_URL)
+
+const url = new URL(process.env.DATABASE_URL)
+
+console.log(url)
+
+const adapter = new PrismaMariaDb({
+  host: url.hostname,
+  user: url.username,
+  password: url.password,
+  database: url.pathname.substring(1),
+  connectionLimit: 5,
+});
+const prisma = new PrismaClient({ adapter });
+
+try {
+  await prisma.$queryRaw`SELET 1+1 AS result`;
+  console.log('Connection has been established successfully.');
+} catch (error) {
+  console.error('Unable to connect to the database:', error);
+}
+
+
+export { prisma };
